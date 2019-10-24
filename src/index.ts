@@ -1,6 +1,6 @@
 import commander from "commander";
 
-import { Lox } from "./lib";
+import { Lox } from "./lox";
 
 const program = new commander.Command();
 program.version("0.0.1");

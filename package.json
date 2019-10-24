@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "tsnd --no-notify src/index.ts",
-    "build": "tsc src/index.ts && node src/index.js",
+    "gen-ast": "tsnd --no-notify src/tool/GenerateAst.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Alena Gilevskaya <alena@gilevskaya.com>",
