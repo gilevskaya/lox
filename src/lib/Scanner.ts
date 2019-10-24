@@ -16,22 +16,76 @@ export class Scanner {
     let current: number = 0;
     let line: number = 1;
 
-    const addToken = (type: lox.TokenType) => {
+    const isAtEnd = () => current >= this.source.length;
+
+    const addToken = (type: lox.TokenType, literal?: lox.ILiteral) => {
+      const text = this.source.slice(start, current);
       this.tokens.push(
         new lox.Token({
           type: type,
-          lexeme: "",
-          literal: undefined,
+          lexeme: text,
+          literal,
           line
         })
       );
     };
 
-    const scanToken = () => {
+    const scanToken = (): void => {
       // consumes the next character in the source file and returns it
       const advance = (): string => {
         current++;
         return this.source[current - 1];
+      };
+      // It’s like a conditional advance().
+      // It only consumes the current character if it’s what we’re looking for.
+      const match = (expected: string): boolean => {
+        if (isAtEnd()) return false;
+        if (this.source[current] != expected) return false;
+        current++;
+        return true;
+      };
+      // It’s sort of like advance(), but doesn’t consume the character
+      const peek = (): string => {
+        if (isAtEnd()) return "\0";
+        return this.source[current];
+      };
+      const peekNext = () => {
+        if (current + 1 >= this.source.length) return "\0";
+        return this.source[current + 1];
+      };
+      const isDigit = (c: string): boolean => {
+        return c >= "0" && c <= "9";
+      };
+
+      const scanString = (): void => {
+        while (peek() != '"' && !isAtEnd()) {
+          if (peek() == "\n") line++;
+          advance();
+        }
+        // Unterminated string.
+        if (isAtEnd()) {
+          lox.Lox.error(line, "Unterminated string.");
+          return;
+        }
+        // The closing ".
+        advance();
+        // Trim the surrounding quotes.
+        const value = this.source.slice(start + 1, current - 1);
+        addToken(lox.TokenType.STRING, value);
+      };
+
+      const scanNumber = (): void => {
+        while (isDigit(peek())) advance();
+        // Look for a fractional part.
+        if (peek() == "." && isDigit(peekNext())) {
+          // Consume the "."
+          advance();
+          while (isDigit(peek())) advance();
+        }
+        addToken(
+          lox.TokenType.NUMBER,
+          parseFloat(this.source.slice(start, current))
+        );
       };
 
       const c = advance();
@@ -76,17 +130,67 @@ export class Scanner {
           addToken(lox.TokenType.STAR);
           break;
         }
+        case "!": {
+          addToken(match("=") ? lox.TokenType.BANG_EQUAL : lox.TokenType.BANG);
+          break;
+        }
+        case "=": {
+          addToken(
+            match("=") ? lox.TokenType.EQUAL_EQUAL : lox.TokenType.EQUAL
+          );
+          break;
+        }
+        case "<": {
+          addToken(match("=") ? lox.TokenType.LESS_EQUAL : lox.TokenType.LESS);
+          break;
+        }
+        case ">": {
+          addToken(
+            match("=") ? lox.TokenType.GREATER_EQUAL : lox.TokenType.GREATER
+          );
+          break;
+        }
+        case "/": {
+          if (match("/")) {
+            // A comment goes until the end of the line.
+            while (peek() != "\n" && !isAtEnd()) advance();
+          } else {
+            addToken(lox.TokenType.SLASH);
+          }
+          break;
+        }
+        case " ":
+        case "\r":
+        case "\t":
+          // Ignore whitespace.
+          break;
+        case "\n": {
+          line++;
+          break;
+        }
+        case '"': {
+          scanString();
+          break;
+        }
         default:
-          lox.Lox.error(line, "Unexpected character.");
+          if (isDigit(c)) scanNumber();
+          else lox.Lox.error(line, "Unexpected character.");
       }
     };
 
-    while (current < this.source.length) {
+    while (!isAtEnd()) {
       // We are at the beginning of the next lexeme.
       start = current;
       scanToken();
     }
-    addToken(lox.TokenType.EOF);
+    this.tokens.push(
+      new lox.Token({
+        type: lox.TokenType.EOF,
+        lexeme: "",
+        literal: undefined,
+        line
+      })
+    );
     return this.tokens;
   }
 }

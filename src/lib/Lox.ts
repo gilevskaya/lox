@@ -47,7 +47,7 @@ export class Lox {
     const scanner = new lox.Scanner(source);
     const tokens: lox.Token[] = scanner.scanTokens();
 
-    console.log("LOX tokens:");
+    console.log("Parsed tokens:");
     tokens.forEach(t => console.log(`:: ${t}`));
   }
 

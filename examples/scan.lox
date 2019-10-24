@@ -1,0 +1,5 @@
+// this is a comment
+(( )){} // grouping stuff
+& !*+-/=<> <= == // operators + error
+"my_str" // strings
+123.45 // number

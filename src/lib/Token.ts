@@ -53,9 +53,10 @@ export enum TokenType {
 interface IToken {
   type: TokenType;
   lexeme: string;
-  literal?: object;
+  literal?: ILiteral;
   line: number; // code line for errors
 }
+export type ILiteral = string | number;
 
 export class Token {
   public token: IToken;
@@ -66,6 +67,8 @@ export class Token {
 
   public toString(): string {
     const { type, lexeme, literal } = this.token;
-    return TokenType[type] + " " + lexeme + (literal || "");
+    return (
+      TokenType[type] + " " + (lexeme ? lexeme + " " : "") + (literal || "")
+    );
   }
 }
