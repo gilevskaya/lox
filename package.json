@@ -1,22 +1,23 @@
 {
   "name": "lox",
   "version": "1.0.0",
-  "description": "",
+  "description": "Lox Interpreter",
   "main": "src/index.ts",
   "scripts": {
     "dev": "tsnd --no-notify src/index.ts",
     "build": "tsc src/index.ts && node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Alena Gilevskaya <alena@gilevskaya.com>",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^12.11.6",
     "ts-node-dev": "^1.0.0-pre.43",
     "typescript": "^3.6.4"
   },
-  "prettier": {},
   "dependencies": {
+    "chalk": "^2.4.2",
     "commander": "^3.0.2"
-  }
+  },
+  "prettier": {}
 }
