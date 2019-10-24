@@ -56,6 +56,12 @@ export class Scanner {
       const isDigit = (c: string): boolean => {
         return c >= "0" && c <= "9";
       };
+      const isAlpha = (c: string): boolean => {
+        return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || c == "_";
+      };
+      const isAlphaNumeric = (c: string): boolean => {
+        return isAlpha(c) || isDigit(c);
+      };
 
       const scanString = (): void => {
         while (peek() != '"' && !isAtEnd()) {
@@ -86,6 +92,14 @@ export class Scanner {
           lox.TokenType.NUMBER,
           parseFloat(this.source.slice(start, current))
         );
+      };
+
+      const scanIdentifier = (): void => {
+        while (isAlphaNumeric(peek())) advance();
+        // See if the identifier is a reserved word.
+        const text = this.source.slice(start, current);
+        const type = lox.KEYWORDS.get(text) || lox.TokenType.IDENTIFIER;
+        addToken(type);
       };
 
       const c = advance();
@@ -174,6 +188,7 @@ export class Scanner {
         }
         default:
           if (isDigit(c)) scanNumber();
+          else if (isAlpha(c)) scanIdentifier();
           else lox.Lox.error(line, "Unexpected character.");
       }
     };
