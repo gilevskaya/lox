@@ -1,2 +1,2 @@
-printf "Hello world!";
-var a = 42;
+// printf "Hello world!";
+var a = 42 + 12;

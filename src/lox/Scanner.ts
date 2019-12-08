@@ -206,6 +206,7 @@ export class Scanner {
         line
       })
     );
+    console.log("TOKENS", this.tokens);
     return this.tokens;
   }
 }

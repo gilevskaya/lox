@@ -46,13 +46,26 @@ export class Lox {
 
     const scanner = new lox.Scanner(source);
     const tokens: lox.Token[] = scanner.scanTokens();
-
     console.log("Parsed tokens:");
     tokens.forEach(t => console.log(`:: ${t}`));
+    const parser: lox.Parser = new lox.Parser(tokens);
+    const expression = parser.parse();
+    console.log("expression", expression);
+    // Stop if there was a syntax error.
+    if (this.hadError || expression == null) return;
+    console.log(new lox.AstPrinter().print(expression));
   }
 
-  public static error(line: number, message: string) {
-    Lox.report(line, "", message);
+  public static error(info: number | lox.Token, message: string) {
+    // info is a line number
+    if (typeof info === "number") {
+      Lox.report(info, "", message);
+      // info is a Token
+    } else if (info.token.type == lox.TokenType.EOF) {
+      Lox.report(info.token.line, " at end", message);
+    } else {
+      Lox.report(info.token.line, " at '" + info.token.lexeme + "'", message);
+    }
   }
 
   private static report(line: number, where: string, message: string) {
